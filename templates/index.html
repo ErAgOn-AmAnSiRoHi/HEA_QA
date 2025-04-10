@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEA Question-Answering System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+        <!-- Background Animation -->
+    <div id="background-animation" class="background-animation" aria-hidden="true">
+        <svg class="background-paths" viewBox="0 0 696 316" fill="none">
+        <title>Background Animation</title>
+        <!-- SVG paths will be added by JavaScript -->
+        </svg>
+    </div>
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <header class="app-header">
+            <div class="app-title">
+                <h1>HEA Question-Answering System</h1>
+                <p class="subtitle">Analyze High Entropy Alloy research papers using AI</p>
+            </div>
+            <div class="header-actions">
+                <button id="clean-cache-btn" class="icon-btn" title="Clean Cache">
+                    <i class="fas fa-broom"></i>
+                    <span>Clean Cache</span>
+                </button>
+                <button id="toggle-model-btn" class="icon-btn" title="Toggle Model">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Using: API Model</span>
+                </button>
+                <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Abstract Submission Section -->
+        <div class="abstract-section card glassmorphism">
+            <h2><i class="fas fa-file-alt"></i> Submit Abstract</h2>
+            
+            <!-- Add CSV File Upload Option -->
+            <div class="upload-options">
+                <div class="upload-tab active" data-target="text-input">Single Abstract</div>
+                <div class="upload-tab" data-target="file-upload">Multiple Abstracts (CSV)</div>
+            </div>
+            
+            <!-- Text Input Area (Default) -->
+            <div class="input-area" id="text-input">
+                <div class="text-area-container">
+                    <textarea id="abstract-text" placeholder="Paste your abstract here..."></textarea>
+                </div>
+            </div>
+            
+            <!-- File Upload Area -->
+            <div class="input-area" id="file-upload" style="display: none;">
+                <div class="file-upload-container">
+                    <div class="file-upload-area" id="csv-upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drop your CSV file here or click to browse</p>
+                        <p class="file-formats">Supported format: .csv</p>
+                        <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                    </div>
+                    <div class="upload-progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">0%</div>
+                    </div>
+                    <div id="file-name-display"></div>
+                </div>
+            </div>
+
+            <div class="submit-container">
+                <button id="submit-abstract-btn" class="btn primary-btn">
+                    <span class="btn-text">Submit Abstract</span>
+                    <span class="btn-loader" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                </button>
+                <button id="see-table-btn" class="btn secondary-btn" style="display: none;">
+                    <i class="fas fa-table"></i> View Extracted Data
+                </button>
+                <button id="see-qa-pairs-btn" class="btn secondary-btn" style="display: none;">
+                    <i class="fas fa-question-circle"></i> <span class="btn-text">See QA Pairs</span>
+                </button>
+            </div>
+            <div id="abstract-processing-status" style="display: none;"></div>
+        </div>
+        
+        <!-- Chat Assistant Section -->
+        <div class="chat-section card glassmorphism">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <i class="fas fa-robot"></i>
+                    <span>Chat Assistant</span>
+                </div>
+                <button id="clear-chat" class="text-btn">
+                    <i class="fas fa-trash-alt"></i> Clear Chat
+                </button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="empty-chat">
+                    <i class="fas fa-comments fa-3x"></i>
+                    <p>No messages yet. Start a conversation!</p>
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <textarea id="chat-input" placeholder="Type your question about the materials..." maxlength="1000"></textarea>
+                <div class="chat-input-actions">
+                    <div class="char-count">
+                        <span id="char-count">0</span>/1000
+                    </div>
+                    <button id="send-message" class="btn circle-btn primary-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Modal -->
+    <div id="table-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-table"></i> Extracted Data</h2>
+                <div class="modal-actions">
+                    <div class="search-container">
+                        <input type="text" id="table-search" placeholder="Search...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <button id="download-json-btn" class="btn primary-btn">
+                        <i class="fas fa-download"></i> Download JSON
+                    </button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="table-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="qa-pairs-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-question-circle"></i> Question-Answer Pairs</h2>
+                <div class="modal-actions">
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="qa-search" placeholder="Search QA pairs...">
+                    </div>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="qa-content">
+                    <div class="table-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading QA pairs...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
