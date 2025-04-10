@@ -3,91 +3,90 @@ base_model: microsoft/phi-2
 library_name: peft
 ---
 
-# Model Card for Fine-Tuned Phi-2 (HEA Domain QA)
+# Model Card for Fine-Tuned Phi-2 (HEA QA)
 
-## Overview
-This is a fine-tuned version of Microsoft's Phi-2 language model, specialized for question answering (QA) in the High Entropy Alloys (HEAs) domain. The model was adapted using QLoRA (Quantized Low-Rank Adaptation), enabling efficient fine-tuning with reduced memory requirements.
+## 🧠 Overview
+This model is a fine-tuned version of Microsoft's Phi-2, designed for **question answering** in the domain of **High Entropy Alloys (HEAs)**. Fine-tuning was performed using **QLoRA** (Quantized Low-Rank Adaptation), enabling efficient adaptation with reduced memory usage.
 
 ---
 
-## Model Details
+## 📌 Model Details
 
 - **Developed by:** Aman Sirohi *(Individual researcher/developer using QLoRA fine-tuning)*  
-- **Model Type:** Fine-tuned language model for question answering  
-- **Language(s):** English  
-- **License:** [Same as base model (microsoft/phi-2)](https://huggingface.co/microsoft/phi-2/resolve/main/LICENSE)  
-- **Finetuned From:** `microsoft/phi-2`  
-- **Base Repository:** [Hugging Face](https://huggingface.co/microsoft/phi-2)
+- **Base Model:** [microsoft/phi-2](https://huggingface.co/microsoft/phi-2)  
+- **Model Type:** Fine-tuned Language Model for QA  
+- **Language:** English  
+- **License:** [Same as base model](https://huggingface.co/microsoft/phi-2/resolve/main/LICENSE)
 
 ---
 
-## Intended Use
+## 📥 Intended Uses
 
-### Direct Use
-The model is well-suited for:
-- QA format prompts
-- Chat format interactions
-- Code-related prompts
+### ✅ Direct Use
+This model supports three core prompting formats:
 
-**Examples:**
-
-**QA Format**
-```
+#### **QA Format**
+```text
 Instruct: Write a detailed analogy between mathematics and a lighthouse.
-Output: Mathematics is like a lighthouse. Just as a lighthouse guides ships safely to shore...
+Output: Mathematics is like a lighthouse... (Generated Answer)
 ```
 
-**Chat Format**
-```
-Alice: I don't know why, I'm struggling to maintain focus while studying. Any suggestions?
-Bob: Well, have you tried creating a study schedule and sticking to it?
-Alice: ...
+#### **Chat Format**
+```text
+Alice: I'm struggling to focus.
+Bob: Have you tried a study schedule?
+Alice: Yes, it doesn't help.
+Bob: ... (Generated Reply)
 ```
 
-**Code Format**
+#### **Code Format**
 ```python
 def print_prime(n):
     """
     Print all primes between 1 and n
     """
-    # Model continues code generation here
+    primes = []
+    for num in range(2, n+1):
+        is_prime = True
+        for i in range(2, int(math.sqrt(num))+1):
+            if num % i == 0:
+                is_prime = False
+                break
+        if is_prime:
+            primes.append(num)
+    print(primes)
 ```
+*The model continues after docstring or comments.*
 
-> **Note:**
-> - Model output should be used as a reference, not a final answer.
-> - Use `trust_remote_code=True` if using `transformers < 4.37.0`.
+> ⚠️ This model is for **educational and experimental** use only. Not production-tested.
 
-### Downstream Use
-Designed for context-driven question answering in the HEA domain:
-- **Input:** Research paper abstract (context)
-- **Query:** Specific question about the HEA information
-- **Output:** Concise, context-based answer
+### 📘 Downstream Use
+Specifically designed to answer:
+- Questions derived from abstracts of research papers on HEAs.
+- Contextual prompts where QA involves material science terminology.
 
-### Out-of-Scope Uses
-- Non-HEA domains
-- General knowledge or creative tasks
-- Non-English inputs
-- Tasks other than QA (e.g., summarization, translation)
+### 🚫 Out-of-Scope Use
+- General knowledge or non-technical QA.
+- Creative writing or code synthesis beyond educational scope.
+- Use in other languages than English.
 
 ---
 
-## Bias, Risks, and Limitations
+## ⚠️ Bias, Risks & Limitations
 
-- **Training Data Bias:** May reflect biases from HEA domain-specific texts
-- **Context Sensitivity:** Needs well-structured context to perform optimally
-- **Quantization Loss:** 4-bit compression may slightly reduce precision
-- **Limited Epochs:** Fine-tuned for only one epoch — may affect output quality
+- **Training Data Bias:** May reflect biases present in source HEA abstracts.
+- **Context Dependency:** Quality of answers depends on context completeness.
+- **Quantization Loss:** 4-bit quantization may slightly reduce precision.
+- **Limited Epochs:** Fine-tuned for 1 epoch only; may limit generalization.
 
-### Recommendations
-- Provide relevant and complete context
-- Verify outputs for factual correctness
-- Consider further fine-tuning for domain adaptation
-- Use human oversight for critical or sensitive use cases
+### 🛡 Recommendations
+- Always provide detailed, domain-specific context.
+- Use model outputs as **starting points**, not final answers.
+- Implement **human-in-the-loop** review for educational usage.
 
 ---
 
-## Getting Started
-
+## 🚀 How to Get Started
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -117,28 +116,30 @@ print(answer)
 
 ---
 
-## Environmental Impact
+## 🌱 Environmental Impact
 
-- **Hardware Efficiency:** Achieved via 4-bit quantization
-- **Training Efficiency:** Trains only LoRA adapters, reducing computational cost significantly
+- **Efficient Fine-Tuning:** QLoRA enables training large models with reduced memory and energy consumption.
+- **Memory Savings:** 4-bit quantization significantly lowers hardware requirements.
+- **Adapter Training:** Only LoRA adapters are updated, saving compute cycles.
+
+---
+
+## ⚙️ Technical Specifications
+
+### 🧩 Architecture & Objective
+- Base: Phi-2 by Microsoft
+- Objective: Causal language modeling (next-token prediction)
+- Adaptation: LoRA applied to attention layers
+
+### 🖥️ Compute Infrastructure
+- Framework: PyTorch
+- Quantization: `bitsandbytes`
+- Fine-tuning: `PEFT` with QLoRA strategy
+
+### 📦 Framework Versions
+- **PEFT:** 0.14.0  
+- **Transformers:** (version used during training)  
+- **bitsandbytes:** (for quantization)
 
 ---
 
-## Technical Specifications
-
-### Architecture & Objective
-- Based on Microsoft's Phi-2 architecture
-- Uses LoRA adapters on attention modules
-- Objective: Causal Language Modeling (next-token prediction)
-
-### Compute Details
-- **Framework:** PyTorch
-- **Quantization:** `bitsandbytes` (4-bit)
-- **Fine-Tuning:** Using PEFT (QLoRA)
-
-### Library Versions
-- `peft`: 0.14.0  
-- `transformers`: (version used during training)  
-- `bitsandbytes`: (for quantization)
-
----
